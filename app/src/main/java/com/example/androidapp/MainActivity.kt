@@ -1,23 +1,27 @@
 package com.example.androidapp
 
+import android.content.Context
+import android.net.ConnectivityManager
 import android.os.AsyncTask
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.ProgressBar
+import androidx.appcompat.app.AppCompatActivity
+import org.jetbrains.anko.toast
 import org.json.JSONObject
+//import sun.jvm.hotspot.utilities.IntArray
 import java.net.URL
+
 
 class MainActivity : AppCompatActivity() {
 
     //global variables declarations
-    private lateinit var listView: ListView;
-    var actionbar_title: String = "";
+    private lateinit var listView: ListView
+    var actionbar_title: String = ""
     var dataList = ArrayList<HashMap<String, String>>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,9 +31,23 @@ class MainActivity : AppCompatActivity() {
         //listview of the main layout
         listView = findViewById<ListView>(R.id.list_view)
 
+        Log.i("Check internet status", isNetworkConnected().toString())
+        //check if phone is connected to internet
+        if(isNetworkConnected() == false){
+            toast("Connect your phone to internet and click refresh")
+            return
+        }
+
         //this method call fetches data from the json url
         fetchJsonData().execute()
 
+    }
+
+
+    private fun isNetworkConnected(): Boolean {
+        val cm =
+            getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        return cm.activeNetworkInfo != null && cm.activeNetworkInfo.isConnected
     }
 
     //To create a menu
@@ -44,10 +62,15 @@ class MainActivity : AppCompatActivity() {
             // do stuff
             Log.d("MainActivity","List is Refreshed ")
 
-            //this method call fetches data from the json url
-            fetchJsonData().execute()
-
+            //check if phone is connected to internet
+            if(isNetworkConnected() == false){
+                toast("Connect your phone to internet and click refresh")
+            }else {
+                //this method call fetches data from the json url
+                fetchJsonData().execute()
+            }
             true
+
         }
         else -> super.onOptionsItemSelected(item)
     }
@@ -82,7 +105,7 @@ class MainActivity : AppCompatActivity() {
 
             //the title of the json is captured in actionbar_title string and set as action bar title
             actionbar_title = jsonObj.get("title").toString()
-            getSupportActionBar()?.setTitle(actionbar_title);
+            getSupportActionBar()?.setTitle(actionbar_title)
 
             //the rows of the json array are read  and stored in an array list called dataList
             val rowsArr = jsonObj.getJSONArray("rows")
