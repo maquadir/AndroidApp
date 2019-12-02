@@ -29,13 +29,15 @@ class Adapter(private val context: Context,
         rowView.findViewById<TextView>(R.id.row_title).text = dataitem.get("title")
         rowView.findViewById<TextView>(R.id.row_description).text = dataitem.get("description")
 
+        //change http to https 
+        val url = dataitem.get("imageHref").toString().replace("http","https")
+        Log.i("image url",url)
+
         //use glide to lazy load images into imageview
-        Glide.with(rowView)  //2
-            .load(dataitem.get("imageHref")) //3
+        Glide.with(context)  //2
+            .load(url) //3
             .centerCrop() //4
             .placeholder(R.drawable.place_holder) //5
-            .error(R.drawable.place_holder) //6
-            .fallback(R.drawable.place_holder) //7
             .into(rowView.findViewById<ImageView>(R.id.row_image)) //8
 
 
